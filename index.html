@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TruthLens AI – Fake News Detection System</title>
+  <meta name="description" content="A transparent news verification and claim-checking tool combining heuristic red-flag detection with search-grounded Google Gemini analysis.">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Pinned Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-wrapper header-inner">
+      <a href="#analyze" class="wordmark" id="brand-link">TruthLens</a>
+      <nav class="site-nav" aria-label="Main Navigation">
+        <a href="#analyze" class="nav-link is-active" data-tab="analyze">Analyze</a>
+        <a href="#history" class="nav-link" data-tab="history">History</a>
+        <a href="#dashboard" class="nav-link" data-tab="dashboard">Dashboard</a>
+        <a href="#about" class="nav-link" data-tab="about">About</a>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">Dark mode</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-wrapper main-content" id="main-content">
+    <!-- 1. ANALYZE PANE -->
+    <section class="tab-pane is-active" id="pane-analyze" aria-labelledby="Analyze">
+      <p class="input-intro">Paste a news article or excerpt to inspect its factual claims and journalistic credibility.</p>
+
+      <form class="analyze-form" id="analyze-form" novalidate>
+        <div class="form-group">
+          <label for="input-headline" class="form-label">Headline or title</label>
+          <input 
+            type="text" 
+            id="input-headline" 
+            class="form-input" 
+            placeholder="e.g. Federal Reserve leaves benchmark rate unchanged at 5.25%–5.50%" 
+            maxlength="500" 
+            autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="input-text" class="form-label">Article text (minimum 40 characters)</label>
+          <textarea 
+            id="input-text" 
+            class="form-textarea" 
+            placeholder="Paste the full news story or key paragraphs here..." 
+            required 
+            rows="8"></textarea>
+          <div class="form-footer-bar">
+            <span id="char-counter">0 characters</span>
+            <div class="sample-links-group">
+              <span>Try a sample:</span>
+              <button type="button" class="sample-btn" id="btn-sample-real">Real-world reporting</button>
+              <button type="button" class="sample-btn" id="btn-sample-fake">Questionable claim</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-url" class="form-label">Source URL (optional)</label>
+          <input 
+            type="url" 
+            id="input-url" 
+            class="form-input" 
+            placeholder="https://example.com/article" 
+            maxlength="1000">
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" id="btn-submit">Check this article</button>
+          <span class="loading-indicator" id="loading-indicator" aria-live="polite">Reading the article...</span>
+        </div>
+      </form>
+
+      <!-- Notice box for API fallback or validation warnings -->
+      <div class="notice-box notice-warning" id="analysis-notice" style="display: none;" role="status"></div>
+
+      <!-- RESULTS SECTION -->
+      <section class="results-container" id="results-container" aria-live="polite">
+        <header class="verdict-header">
+          <h1 class="verdict-title" id="res-verdict">Evaluating</h1>
+          <p class="verdict-summary" id="res-summary"></p>
+          <p class="verdict-explanation" id="res-explanation"></p>
+        </header>
+
+        <!-- Score ruler -->
+        <div class="score-ruler-wrapper">
+          <div class="score-ruler-header">
+            <span class="ruler-title">Credibility assessment ruler</span>
+            <div class="ruler-legend">
+              <span class="legend-item"><span class="legend-swatch swatch-final"></span> Final score</span>
+              <span class="legend-item"><span class="legend-swatch swatch-gemini"></span> Gemini evidence</span>
+              <span class="legend-item"><span class="legend-swatch swatch-redflags"></span> Red-flag check</span>
+            </div>
+          </div>
+          <div class="score-ruler" id="score-ruler">
+            <div class="ruler-ticks" id="ruler-ticks"></div>
+            <!-- Dynamic markers -->
+            <div class="ruler-pointer pointer-final" id="pointer-final" style="left: 50%;">
+              <span class="ruler-pointer-label" id="label-final">Final 50</span>
+            </div>
+            <div class="ruler-pointer pointer-gemini" id="pointer-gemini" style="left: 50%;">
+              <span class="ruler-pointer-label" id="label-gemini">Gemini 50</span>
+            </div>
+            <div class="ruler-pointer pointer-redflags" id="pointer-redflags" style="left: 50%;">
+              <span class="ruler-pointer-label" id="label-redflags">Heuristic 50</span>
+            </div>
+          </div>
+          <div class="ruler-labels">
+            <span>0 (Deceptive / Baseless)</span>
+            <span>25</span>
+            <span>50 (Uncertain / Mixed)</span>
+            <span>75</span>
+            <span>100 (Verified Reporting)</span>
+          </div>
+        </div>
+
+        <!-- Copy editor markup: article text on left, margin notes on right -->
+        <div id="annotated-article-mount"></div>
+
+        <!-- Editorial details sections -->
+        <section class="editorial-section" id="sec-redflags">
+          <h2 class="section-subheading">Heuristic red-flag indicators</h2>
+          <p class="source-citation" id="redflag-intro">Rule-based syntactic and stylistic evaluation.</p>
+          <ul class="editorial-list" id="list-redflags"></ul>
+        </section>
+
+        <section class="editorial-section" id="sec-source">
+          <h2 class="section-subheading">Source assessment</h2>
+          <div id="source-details"></div>
+        </section>
+
+        <section class="editorial-section" id="sec-supporting">
+          <h2 class="section-subheading">Supporting evidence</h2>
+          <ul class="editorial-list" id="list-supporting"></ul>
+        </section>
+
+        <section class="editorial-section" id="sec-contradicting">
+          <h2 class="section-subheading">Contradicting evidence</h2>
+          <ul class="editorial-list" id="list-contradicting"></ul>
+        </section>
+
+        <section class="editorial-section" id="sec-sources">
+          <h2 class="section-subheading">Verified external sources</h2>
+          <div id="grounding-sources-list"></div>
+        </section>
+
+        <section class="editorial-section" id="sec-recommendation">
+          <h2 class="section-subheading">Recommended reader action</h2>
+          <p class="editorial-list-item" id="res-recommendation"></p>
+        </section>
+
+        <div class="notice-box" style="margin-top: 32px;">
+          <p class="disclaimer-text">TruthLens AI provides automated analysis, not definitive proof. Heuristic and AI predictions are estimates and source verification depends on available evidence.</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- 2. HISTORY PANE -->
+    <section class="tab-pane" id="pane-history" aria-labelledby="History">
+      <div class="history-header">
+        <h1 class="section-subheading">Verification history</h1>
+        <button type="button" class="sample-btn" id="btn-clear-history">Clear all history</button>
+      </div>
+      <div id="history-container">
+        <table class="ledger-table" id="history-table" style="display: none;">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Headline</th>
+              <th scope="col">Verdict</th>
+              <th scope="col">Score</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+        <p class="input-intro" id="history-empty">No checks yet. Paste an article to start.</p>
+      </div>
+    </section>
+
+    <!-- 3. DASHBOARD PANE -->
+    <section class="tab-pane" id="pane-dashboard" aria-labelledby="Dashboard">
+      <p class="dashboard-sentence" id="dash-summary-sentence">No checks yet. Paste an article to start.</p>
+      <div class="dashboard-charts-grid">
+        <div class="chart-card">
+          <h2 class="chart-heading">Verdict distribution</h2>
+          <div class="chart-container">
+            <canvas id="chart-verdicts"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h2 class="chart-heading">Credibility score trend</h2>
+          <div class="chart-container">
+            <canvas id="chart-trend"></canvas>
+          </div>
+        </div>
+      </div>
+      <p class="input-intro" id="dashboard-empty" style="margin-top: 24px; display: none;">Run a few analyses to see trend curves and verdict counts.</p>
+    </section>
+
+    <!-- 4. ABOUT PANE -->
+    <section class="tab-pane" id="pane-about" aria-labelledby="About">
+      <article class="about-prose">
+        <h1 class="section-subheading">About TruthLens AI</h1>
+        <p>TruthLens AI was designed for journalists, researchers, and critical readers who need to quickly inspect whether a claim holds up against reliable evidence.</p>
+
+        <h2>How it works</h2>
+        <p>Rather than relying on a single black-box score, TruthLens combines two distinct signals:</p>
+        <ul>
+          <li><strong>Transparent Heuristic Baseline:</strong> An in-browser rule set evaluating uppercase overuse, sensational punctuation, clickbait phrasing, emotional language density, source attribution quotes, and concrete dates and numbers. This provides an immediate sanity check.</li>
+          <li><strong>Search-Grounded Gemini Analysis:</strong> Server-side reasoning powered by Google Gemini with live Google Search grounding. Gemini extracts key factual claims, cross-references them against verified public reporting, and provides claim-by-claim citations and explanations.</li>
+        </ul>
+
+        <h2>Copy editor markup</h2>
+        <p>TruthLens displays evidence directly on the text you paste. Each identified claim is highlighted in place—green for supported, red for contradicted, and amber for unverified—accompanied by aligned margin notes explaining the findings.</p>
+
+        <h2>Limitations</h2>
+        <p>Heuristics can be fooled by well-written satire, and automated AI fact-checking can reflect gaps or delays in available web reporting. In particular, breaking events under active development may not yet have definitive evidence.</p>
+
+        <h2>Disclaimer</h2>
+        <p>TruthLens AI provides automated analysis, not definitive proof. Heuristic and AI predictions are estimates and source verification depends on available evidence.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-wrapper">
+      <p class="disclaimer-text">TruthLens AI provides automated analysis, not definitive proof. Heuristic and AI predictions are estimates and source verification depends on available evidence.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
