@@ -1,0 +1,580 @@
+/* ==========================================================================
+   TruthLens AI – Colourful Theme Overlay (No Black / Near-Black)
+   
+   Scope: Color, background, border-color, and shadow overrides only.
+   Zero layout, sizing, or transform modifications.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. Colour System Tokens
+   -------------------------------------------------------------------------- */
+:root {
+  /* Core Palette – Light Theme */
+  --color-paper:       #E6F4F3;
+  --color-surface:     #FFFFFF;
+  --color-panel-tint:  #F2FAF9;
+  --color-ink:         #12394A;
+  --color-ink-mid:     #2B5466;
+  --color-ink-muted:   #4F7280;
+  --color-rule:        #BFDCDC;
+
+  /* Primary Brand & Accents */
+  --color-primary:     #0E7C86;
+  --color-primary-h:   #0A6169;
+  --color-accent:      #0E7C86;
+  --color-accent-h:    #0A6169;
+  --color-warm:        #FF6B5E; /* Coral */
+  --color-yellow:      #FFC857; /* Sunny Yellow */
+
+  /* Verdict Colours */
+  --verdict-true:          #1B9E6B;
+  --verdict-mostly-true:   #5FAE3E;
+  --verdict-misleading:    #E8A317;
+  --verdict-false:         #E0434B;
+  --verdict-unverifiable:  #6B7BA8;
+
+  /* Claim Marking Pens */
+  --pen-sup:           #1B9E6B;
+  --pen-sup-tint:      rgba(27, 158, 107, 0.22);
+  --pen-con:           #E0434B;
+  --pen-con-tint:      rgba(224, 67, 75, 0.22);
+  --pen-unv:           #E8A317;
+  --pen-unv-tint:      rgba(232, 163, 23, 0.22);
+
+  /* Focus & Controls */
+  --focus-ring:        2px solid #0E7C86;
+
+  /* 3D Shadows & Layering (Teal-tinted, no black/grey) */
+  --3d-paper-edge:         rgba(14, 124, 134, 0.12);
+  --3d-paper-edge-2:       rgba(14, 124, 134, 0.08);
+  --3d-shadow-ambient:     rgba(14, 124, 134, 0.14);
+  --3d-shadow-lift:        rgba(14, 124, 134, 0.18);
+  --3d-shadow-inset:       rgba(14, 124, 134, 0.15);
+  --3d-btn-edge:           #0A6169;
+  --3d-marker-edge:        rgba(14, 124, 134, 0.28);
+  --3d-marker-edge-accent: #0E7C86;
+  --3d-bg-radial:          rgba(191, 220, 220, 0.50);
+
+  /* Component specific light tokens */
+  --header-bg:             #0E7C86;
+  --header-border:         #0A6169;
+  --footer-bg:             #D3ECEA;
+  --footer-text:           #12394A;
+}
+
+[data-theme="light"] {
+  --color-paper:       #E6F4F3;
+  --color-surface:     #FFFFFF;
+  --color-panel-tint:  #F2FAF9;
+  --color-ink:         #12394A;
+  --color-ink-mid:     #2B5466;
+  --color-ink-muted:   #4F7280;
+  --color-rule:        #BFDCDC;
+  --color-primary:     #0E7C86;
+  --color-primary-h:   #0A6169;
+  --color-accent:      #0E7C86;
+  --color-accent-h:    #0A6169;
+  --color-warm:        #FF6B5E;
+  --color-yellow:      #FFC857;
+  --verdict-true:          #1B9E6B;
+  --verdict-mostly-true:   #5FAE3E;
+  --verdict-misleading:    #E8A317;
+  --verdict-false:         #E0434B;
+  --verdict-unverifiable:  #6B7BA8;
+  --pen-sup:           #1B9E6B;
+  --pen-sup-tint:      rgba(27, 158, 107, 0.22);
+  --pen-con:           #E0434B;
+  --pen-con-tint:      rgba(224, 67, 75, 0.22);
+  --pen-unv:           #E8A317;
+  --pen-unv-tint:      rgba(232, 163, 23, 0.22);
+  --focus-ring:        2px solid #0E7C86;
+  --3d-paper-edge:         rgba(14, 124, 134, 0.12);
+  --3d-paper-edge-2:       rgba(14, 124, 134, 0.08);
+  --3d-shadow-ambient:     rgba(14, 124, 134, 0.14);
+  --3d-shadow-lift:        rgba(14, 124, 134, 0.18);
+  --3d-shadow-inset:       rgba(14, 124, 134, 0.15);
+  --3d-btn-edge:           #0A6169;
+  --3d-marker-edge:        rgba(14, 124, 134, 0.28);
+  --3d-marker-edge-accent: #0E7C86;
+  --3d-bg-radial:          rgba(191, 220, 220, 0.50);
+  --header-bg:             #0E7C86;
+  --header-border:         #0A6169;
+  --footer-bg:             #D3ECEA;
+  --footer-text:           #12394A;
+}
+
+/* Deep Ocean Blue Dark Theme (Zero Black) */
+[data-theme="dark"] {
+  --color-paper:       #0F3B4A;
+  --color-surface:     #164B5C;
+  --color-panel-tint:  #1B576A;
+  --color-ink:         #E9F7F6;
+  --color-ink-mid:     #C3E6E8;
+  --color-ink-muted:   #9CC3CB;
+  --color-rule:        #2A6577;
+
+  --color-primary:     #3CC4CF;
+  --color-primary-h:   #54D5E0;
+  --color-accent:      #3CC4CF;
+  --color-accent-h:    #54D5E0;
+  --color-warm:        #FF8A7E;
+  --color-yellow:      #FFD97A;
+
+  --verdict-true:          #34D399;
+  --verdict-mostly-true:   #7CD359;
+  --verdict-misleading:    #F6B83D;
+  --verdict-false:         #F87171;
+  --verdict-unverifiable:  #93A4D6;
+
+  --pen-sup:           #34D399;
+  --pen-sup-tint:      rgba(52, 211, 153, 0.24);
+  --pen-con:           #F87171;
+  --pen-con-tint:      rgba(248, 113, 113, 0.24);
+  --pen-unv:           #F6B83D;
+  --pen-unv-tint:      rgba(246, 184, 61, 0.24);
+
+  --focus-ring:        2px solid #3CC4CF;
+
+  /* Deep ocean shadows (no black) */
+  --3d-paper-edge:         rgba(10, 38, 48, 0.60);
+  --3d-paper-edge-2:       rgba(10, 38, 48, 0.40);
+  --3d-shadow-ambient:     rgba(10, 38, 48, 0.50);
+  --3d-shadow-lift:        rgba(8, 30, 38, 0.70);
+  --3d-shadow-inset:       rgba(8, 30, 38, 0.55);
+  --3d-btn-edge:           #1F727A;
+  --3d-marker-edge:        rgba(10, 38, 48, 0.60);
+  --3d-marker-edge-accent: #23858F;
+  --3d-bg-radial:          rgba(42, 101, 119, 0.45);
+
+  --header-bg:             #114253;
+  --header-border:         #2A6577;
+  --footer-bg:             #0B313F;
+  --footer-text:           #9CC3CB;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper:       #0F3B4A;
+    --color-surface:     #164B5C;
+    --color-panel-tint:  #1B576A;
+    --color-ink:         #E9F7F6;
+    --color-ink-mid:     #C3E6E8;
+    --color-ink-muted:   #9CC3CB;
+    --color-rule:        #2A6577;
+    --color-primary:     #3CC4CF;
+    --color-primary-h:   #54D5E0;
+    --color-accent:      #3CC4CF;
+    --color-accent-h:    #54D5E0;
+    --color-warm:        #FF8A7E;
+    --color-yellow:      #FFD97A;
+    --verdict-true:          #34D399;
+    --verdict-mostly-true:   #7CD359;
+    --verdict-misleading:    #F6B83D;
+    --verdict-false:         #F87171;
+    --verdict-unverifiable:  #93A4D6;
+    --pen-sup:           #34D399;
+    --pen-sup-tint:      rgba(52, 211, 153, 0.24);
+    --pen-con:           #F87171;
+    --pen-con-tint:      rgba(248, 113, 113, 0.24);
+    --pen-unv:           #F6B83D;
+    --pen-unv-tint:      rgba(246, 184, 61, 0.24);
+    --focus-ring:        2px solid #3CC4CF;
+    --3d-paper-edge:         rgba(10, 38, 48, 0.60);
+    --3d-paper-edge-2:       rgba(10, 38, 48, 0.40);
+    --3d-shadow-ambient:     rgba(10, 38, 48, 0.50);
+    --3d-shadow-lift:        rgba(8, 30, 38, 0.70);
+    --3d-shadow-inset:       rgba(8, 30, 38, 0.55);
+    --3d-btn-edge:           #1F727A;
+    --3d-marker-edge:        rgba(10, 38, 48, 0.60);
+    --3d-marker-edge-accent: #23858F;
+    --3d-bg-radial:          rgba(42, 101, 119, 0.45);
+    --header-bg:             #114253;
+    --header-border:         #2A6577;
+    --footer-bg:             #0B313F;
+    --footer-text:           #9CC3CB;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   1. Header / Top Bar (Solid Teal Band, White Wordmark & Links, Coral Active)
+   -------------------------------------------------------------------------- */
+.site-header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--header-border) !important;
+}
+
+.wordmark {
+  color: #FFFFFF !important;
+}
+.wordmark:hover {
+  color: #FFFFFF !important;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-bottom: 2px solid transparent !important;
+}
+.nav-link:hover {
+  color: #FFFFFF !important;
+}
+.nav-link.is-active {
+  color: #FFFFFF !important;
+  border-bottom: 2px solid var(--color-warm) !important;
+}
+
+/* 3D tab styling integration if 3d.css is loaded */
+.nav-link.is-active {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  border-bottom-color: var(--color-warm) !important;
+  box-shadow: 0 -1px 3px rgba(10, 60, 68, 0.20) !important;
+}
+
+.theme-toggle-btn {
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.40) !important;
+  background-color: transparent !important;
+}
+.theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. Page Body & Surfaces (Aqua Background, White Surfaces)
+   -------------------------------------------------------------------------- */
+body {
+  background-color: var(--color-paper) !important;
+  color: var(--color-ink) !important;
+}
+
+.article-column {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-rule) !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. Primary Button & Links
+   Solid teal, white text, coral on hover/active, yellow focus ring
+   -------------------------------------------------------------------------- */
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 3px 0 var(--3d-btn-edge), 0 4px 8px var(--3d-shadow-ambient) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-warm) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 0 #D94D40, 0 6px 12px var(--3d-shadow-lift) !important;
+  }
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: var(--color-warm) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 1px 0 #D94D40, 0 2px 4px var(--3d-shadow-ambient) !important;
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px var(--color-yellow) !important;
+}
+
+/* Secondary actions – teal links */
+a,
+.sample-btn,
+.ledger-delete-btn {
+  color: var(--color-primary) !important;
+}
+a:hover,
+.sample-btn:hover,
+.ledger-delete-btn:hover {
+  color: var(--color-warm) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Verdict Area (Tint Band with Left Accent Border)
+   -------------------------------------------------------------------------- */
+.verdict-header {
+  background-color: rgba(14, 124, 134, 0.10);
+  border-left: 4px solid var(--color-primary);
+  padding: 20px 24px;
+}
+
+.verdict-header:has(.verdict-true) {
+  background-color: rgba(27, 158, 107, 0.12);
+  border-left-color: var(--verdict-true);
+}
+.verdict-header:has(.verdict-mostly-true) {
+  background-color: rgba(95, 174, 62, 0.12);
+  border-left-color: var(--verdict-mostly-true);
+}
+.verdict-header:has(.verdict-misleading) {
+  background-color: rgba(232, 163, 23, 0.12);
+  border-left-color: var(--verdict-misleading);
+}
+.verdict-header:has(.verdict-false) {
+  background-color: rgba(224, 67, 75, 0.12);
+  border-left-color: var(--verdict-false);
+}
+.verdict-header:has(.verdict-unverifiable) {
+  background-color: rgba(107, 123, 168, 0.12);
+  border-left-color: var(--verdict-unverifiable);
+}
+
+.verdict-title.verdict-true        { color: var(--verdict-true) !important; }
+.verdict-title.verdict-mostly-true { color: var(--verdict-mostly-true) !important; }
+.verdict-title.verdict-misleading  { color: var(--verdict-misleading) !important; }
+.verdict-title.verdict-false       { color: var(--verdict-false) !important; }
+.verdict-title.verdict-unverifiable{ color: var(--verdict-unverifiable) !important; }
+
+/* --------------------------------------------------------------------------
+   5. Score Ruler (Segmented Track & Coral Final Pointer)
+   -------------------------------------------------------------------------- */
+.score-ruler {
+  border-top-color: var(--color-rule) !important;
+  border-bottom-color: var(--color-rule) !important;
+  background: linear-gradient(
+    to right,
+    rgba(224, 67, 75, 0.28) 0%,
+    rgba(224, 67, 75, 0.28) 25%,
+    rgba(232, 163, 23, 0.28) 25%,
+    rgba(232, 163, 23, 0.28) 50%,
+    rgba(95, 174, 62, 0.28) 50%,
+    rgba(95, 174, 62, 0.28) 75%,
+    rgba(27, 158, 107, 0.28) 75%,
+    rgba(27, 158, 107, 0.28) 100%
+  ) !important;
+}
+
+[data-theme="dark"] .score-ruler {
+  background: linear-gradient(
+    to right,
+    rgba(248, 113, 113, 0.32) 0%,
+    rgba(248, 113, 113, 0.32) 25%,
+    rgba(246, 184, 61, 0.32) 25%,
+    rgba(246, 184, 61, 0.32) 50%,
+    rgba(124, 211, 89, 0.32) 50%,
+    rgba(124, 211, 89, 0.32) 75%,
+    rgba(52, 211, 153, 0.32) 75%,
+    rgba(52, 211, 153, 0.32) 100%
+  ) !important;
+}
+
+.ruler-pointer.pointer-final {
+  background-color: var(--color-warm) !important;
+  box-shadow: 1px 0 0 #D94D40, 2px 1px 4px var(--3d-shadow-ambient) !important;
+}
+.pointer-final .ruler-pointer-label {
+  color: var(--color-warm) !important;
+}
+.swatch-final {
+  background-color: var(--color-warm) !important;
+}
+
+.ruler-pointer.pointer-gemini {
+  background-color: var(--pen-sup) !important;
+}
+.pointer-gemini .ruler-pointer-label {
+  color: var(--pen-sup) !important;
+}
+.swatch-gemini {
+  background-color: var(--pen-sup) !important;
+}
+
+.ruler-pointer.pointer-redflags {
+  background-color: var(--color-ink-muted) !important;
+}
+.pointer-redflags .ruler-pointer-label {
+  color: var(--color-ink-muted) !important;
+}
+.swatch-redflags {
+  background-color: var(--color-ink-muted) !important;
+}
+
+.ruler-tick {
+  background-color: var(--color-rule) !important;
+}
+.ruler-tick.major {
+  background-color: var(--color-ink-muted) !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. Sections (Soft Tints with 3px Left Accent Border)
+   -------------------------------------------------------------------------- */
+.editorial-section {
+  border-top: 1px solid var(--color-rule) !important;
+  border-radius: 0 !important;
+}
+
+#sec-redflags {
+  background-color: rgba(255, 107, 94, 0.08) !important;
+  border-left: 3px solid var(--color-warm) !important;
+  padding: 20px 22px !important;
+}
+
+#sec-source {
+  background-color: rgba(14, 124, 134, 0.08) !important;
+  border-left: 3px solid var(--color-primary) !important;
+  padding: 20px 22px !important;
+}
+
+#sec-supporting {
+  background-color: rgba(27, 158, 107, 0.08) !important;
+  border-left: 3px solid var(--pen-sup) !important;
+  padding: 20px 22px !important;
+}
+
+#sec-contradicting {
+  background-color: rgba(224, 67, 75, 0.08) !important;
+  border-left: 3px solid var(--pen-con) !important;
+  padding: 20px 22px !important;
+}
+
+#sec-sources {
+  background-color: rgba(14, 124, 134, 0.06) !important;
+  border-left: 3px solid var(--color-primary) !important;
+  padding: 20px 22px !important;
+}
+
+#sec-recommendation {
+  background-color: rgba(255, 200, 87, 0.12) !important;
+  border-left: 3px solid var(--color-yellow) !important;
+  padding: 20px 22px !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. Margin Notes & Claim Highlights
+   -------------------------------------------------------------------------- */
+.margin-note {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-rule) !important;
+}
+.margin-note:hover,
+.margin-note.is-active {
+  border-color: var(--color-primary) !important;
+  border-top-color: var(--color-primary) !important;
+}
+
+.note-status-indicator.status-supported   { color: var(--pen-sup) !important; }
+.note-status-indicator.status-contradicted { color: var(--pen-con) !important; }
+.note-status-indicator.status-unverified   { color: var(--pen-unv) !important; }
+
+.claim-highlight.highlight-supported {
+  background-color: var(--pen-sup-tint) !important;
+  border-bottom: 2px solid var(--pen-sup) !important;
+}
+.claim-highlight.highlight-contradicted {
+  background-color: var(--pen-con-tint) !important;
+  text-decoration: underline wavy var(--pen-con) 2px !important;
+}
+.claim-highlight.highlight-unverified {
+  background-color: var(--pen-unv-tint) !important;
+  text-decoration: underline dotted var(--pen-unv) 2px !important;
+}
+
+.claim-highlight.is-active,
+.claim-highlight:focus-visible {
+  outline: 2px solid var(--color-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. History Ledger (Alternating Aqua Stripes, Coloured Verdicts)
+   -------------------------------------------------------------------------- */
+.history-header {
+  border-bottom: 1px solid var(--color-primary) !important;
+}
+
+.ledger-table th {
+  color: var(--color-ink-muted) !important;
+  border-bottom: 2px solid var(--color-primary) !important;
+}
+
+.ledger-table td {
+  border-bottom: 1px solid var(--color-rule) !important;
+}
+
+.ledger-row:nth-child(even) td {
+  background-color: var(--color-panel-tint) !important;
+}
+
+.ledger-row:hover td {
+  background-color: rgba(14, 124, 134, 0.12) !important;
+}
+
+.ledger-headline {
+  color: var(--color-ink) !important;
+}
+.ledger-headline:hover {
+  color: var(--color-primary) !important;
+}
+
+.ledger-verdict.verdict-true        { color: var(--verdict-true) !important; }
+.ledger-verdict.verdict-mostly-true { color: var(--verdict-mostly-true) !important; }
+.ledger-verdict.verdict-misleading  { color: var(--verdict-misleading) !important; }
+.ledger-verdict.verdict-false       { color: var(--verdict-false) !important; }
+.ledger-verdict.verdict-unverifiable{ color: var(--verdict-unverifiable) !important; }
+
+/* --------------------------------------------------------------------------
+   9. Dashboard (White Surface with Aqua Rule)
+   -------------------------------------------------------------------------- */
+.chart-card {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-rule) !important;
+  border-top: 3px solid var(--color-primary) !important;
+  border-bottom: 1px solid var(--color-rule) !important;
+}
+
+.chart-heading {
+  color: var(--color-ink) !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. Form Inputs & Textarea
+   -------------------------------------------------------------------------- */
+.form-input,
+.form-textarea {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-rule) !important;
+  color: var(--color-ink) !important;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-ink-muted) !important;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: var(--color-primary) !important;
+  outline: 2px solid var(--color-primary) !important;
+  outline-offset: -1px !important;
+  box-shadow: 0 0 0 2px rgba(14, 124, 134, 0.20) !important;
+}
+
+.notice-box {
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--color-rule) !important;
+}
+.notice-warning {
+  border-left: 4px solid var(--color-yellow) !important;
+}
+.notice-error {
+  border-left: 4px solid var(--pen-con) !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. Footer (Light Teal Tint #D3ECEA with Deep Navy-Teal Text)
+   -------------------------------------------------------------------------- */
+.site-footer {
+  background-color: var(--footer-bg) !important;
+  border-top: 1px solid var(--color-rule) !important;
+}
+
+.site-footer .disclaimer-text {
+  color: var(--footer-text) !important;
+}
