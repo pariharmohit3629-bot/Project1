@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TruthLens AI – Unit Tests</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 30px auto;
+      max-width: 800px;
+      line-height: 1.5;
+      color: #15202b;
+      background: #edf0f3;
+      padding: 0 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .summary-bar {
+      padding: 12px 16px;
+      background: #f8f9fb;
+      border: 1px solid #c8d0d8;
+      border-radius: 3px;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+    .summary-bar.all-passed {
+      border-left: 6px solid #2e7d5b;
+      color: #2e7d5b;
+    }
+    .summary-bar.has-failed {
+      border-left: 6px solid #b3261e;
+      color: #b3261e;
+    }
+    .suite {
+      background: #f8f9fb;
+      border: 1px solid #c8d0d8;
+      border-radius: 3px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+    }
+    .suite-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 0;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #c8d0d8;
+      padding-bottom: 6px;
+    }
+    .test-case {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #edf0f3;
+      font-size: 14px;
+    }
+    .test-case:last-child {
+      border-bottom: none;
+    }
+    .test-pass {
+      color: #2e7d5b;
+      font-weight: 600;
+    }
+    .test-fail {
+      color: #b3261e;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>TruthLens AI – In-Browser Test Suite</h1>
+  <p>Verifies pure logic functions for <code>js/redflags.js</code> and <code>js/scoring.js</code>.</p>
+  <div id="summary" class="summary-bar">Running tests...</div>
+  <div id="results"></div>
+
+  <script type="module">
+    import { analyzeRedFlags, REDFLAG_CONFIG } from '../js/redflags.js';
+    import { calculateFinalScore, SCORING_CONFIG } from '../js/scoring.js';
+
+    const resultsContainer = document.getElementById('results');
+    const summaryEl = document.getElementById('summary');
+
+    let totalTests = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+
+    function renderSuite(title, tests) {
+      const suiteDiv = document.createElement('div');
+      suiteDiv.className = 'suite';
+      
+      const titleEl = document.createElement('h2');
+      titleEl.className = 'suite-title';
+      titleEl.textContent = title;
+      suiteDiv.appendChild(titleEl);
+
+      for (const t of tests) {
+        totalTests++;
+        let passed = false;
+        let errMessage = '';
+        try {
+          t.fn();
+          passed = true;
+          passedTests++;
+        } catch (e) {
+          failedTests++;
+          errMessage = e.message;
+        }
+
+        const caseDiv = document.createElement('div');
+        caseDiv.className = 'test-case';
+        
+        const descSpan = document.createElement('span');
+        descSpan.textContent = t.name + (errMessage ? ` (Error: ${errMessage})` : '');
+        
+        const statusSpan = document.createElement('span');
+        statusSpan.className = passed ? 'test-pass' : 'test-fail';
+        statusSpan.textContent = passed ? 'PASS' : 'FAIL';
+
+        caseDiv.appendChild(descSpan);
+        caseDiv.appendChild(statusSpan);
+        suiteDiv.appendChild(caseDiv);
+      }
+
+      resultsContainer.appendChild(suiteDiv);
+    }
+
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || 'Assertion failed');
+      }
+    }
+
+    function assertEquals(actual, expected, message) {
+      if (actual !== expected) {
+        throw new Error(`${message || 'Failed'}: expected ${expected}, got ${actual}`);
+      }
+    }
+
+    // 1. Red Flags Tests
+    renderSuite('Heuristic Red-Flag Analyzer (js/redflags.js)', [
+      {
+        name: 'Empty input defaults to score 50 with empty_text flag',
+        fn: () => {
+          const res = analyzeRedFlags('', '', '');
+          assertEquals(res.score, 50, 'Default score');
+          assert(res.flags.some(f => f.id === 'empty_text'), 'Missing empty_text flag');
+        }
+      },
+      {
+        name: 'Excessive ALL-CAPS words lowers score and flags high_caps',
+        fn: () => {
+          const headline = 'SHOCKING SECRET GOVERNMENT COVERUP EXPOSED NOW';
+          const text = 'THEY ARE HIDING EVERYTHING FROM YOU AND REFUSING TO ADMIT IT.';
+          const res = analyzeRedFlags(headline, text, '');
+          assert(res.flags.some(f => f.id === 'high_caps'), 'Should flag high_caps');
+          assert(res.score < 50, 'Score should be penalized below base');
+        }
+      },
+      {
+        name: 'Excessive punctuation (!! / ?!) lowers score and flags punctuation_abuse',
+        fn: () => {
+          const headline = 'You will not believe this?!?!';
+          const text = 'Look at this outrage!! Everyone needs to see this right now!!';
+          const res = analyzeRedFlags(headline, text, '');
+          assert(res.flags.some(f => f.id === 'punctuation_abuse'), 'Should flag punctuation_abuse');
+        }
+      },
+      {
+        name: 'Clickbait patterns are detected correctly',
+        fn: () => {
+          const headline = 'The Shocking Truth About This Miracle Cure: What Happens Next Will Blow Your Mind';
+          const text = 'Doctors are furious over this secret they do not want you to know.';
+          const res = analyzeRedFlags(headline, text, '');
+          assert(res.flags.some(f => f.id === 'clickbait_phrases'), 'Should flag clickbait');
+        }
+      },
+      {
+        name: 'Attributed quotes and dates reward standard reporting',
+        fn: () => {
+          const headline = 'Federal Reserve holds interest rates steady in October meeting';
+          const text = 'On October 24, 2024, the Federal Reserve announced rates will remain between 5.25% and 5.50%. "We are committed to returning inflation to our 2% goal," stated Federal Reserve Chair Jerome Powell during a press briefing in Washington.';
+          const res = analyzeRedFlags(headline, text, 'https://example.com/reuters');
+          assert(res.metrics.hasAttributedQuotes, 'Should detect attributed quotes');
+          assert(res.metrics.hasDates, 'Should detect dates');
+          assert(res.metrics.hasNumbers, 'Should detect numbers');
+          assert(res.score > 60, 'Reputable report score should exceed 60');
+        }
+      }
+    ]);
+
+    // 2. Scoring Aggregator Tests
+    renderSuite('Scoring Aggregator (js/scoring.js)', [
+      {
+        name: 'Combines 70% Gemini and 30% Red-Flags correctly',
+        fn: () => {
+          const gemini = { credibility_score: 80, verdict: 'True', confidence: 90 };
+          const redFlags = { score: 60 };
+          const res = calculateFinalScore({ geminiResult: gemini, redFlagResult: redFlags });
+          // 80 * 0.70 + 60 * 0.30 = 56 + 18 = 74
+          assertEquals(res.finalScore, 74, 'Weighted score calculation');
+          assertEquals(res.isFallback, false, 'Should not be in fallback mode');
+          assertEquals(res.verdict, 'True', 'Verdict matches Gemini');
+        }
+      },
+      {
+        name: 'Fallback mode activates when Gemini result is missing',
+        fn: () => {
+          const redFlags = { score: 70 };
+          const res = calculateFinalScore({ geminiResult: null, redFlagResult: redFlags });
+          assertEquals(res.finalScore, 70, 'Final score uses red flag score');
+          assertEquals(res.isFallback, true, 'isFallback is true');
+          assertEquals(res.confidence, SCORING_CONFIG.fallbackConfidence, 'Confidence set to fallback default');
+        }
+      },
+      {
+        name: 'Unverifiable verdict caps confidence at 45',
+        fn: () => {
+          const gemini = { credibility_score: 50, verdict: 'Unverifiable', confidence: 95 };
+          const redFlags = { score: 50 };
+          const res = calculateFinalScore({ geminiResult: gemini, redFlagResult: redFlags });
+          assertEquals(res.isUnverifiable, true, 'isUnverifiable is true');
+          assertEquals(res.confidence, SCORING_CONFIG.unverifiableConfidenceCap, 'Confidence is capped');
+        }
+      },
+      {
+        name: 'Clamps scores strictly within 0 to 100',
+        fn: () => {
+          const gemini = { credibility_score: 150, verdict: 'True', confidence: 120 };
+          const redFlags = { score: -20 };
+          const res = calculateFinalScore({ geminiResult: gemini, redFlagResult: redFlags });
+          assert(res.finalScore >= 0 && res.finalScore <= 100, 'Score is bounded [0, 100]');
+          assert(res.confidence >= 0 && res.confidence <= 100, 'Confidence is bounded [0, 100]');
+        }
+      }
+    ]);
+
+    // Update summary bar
+    if (failedTests === 0) {
+      summaryEl.textContent = `All ${totalTests} tests passed successfully.`;
+      summaryEl.className = 'summary-bar all-passed';
+    } else {
+      summaryEl.textContent = `${failedTests} of ${totalTests} tests failed.`;
+      summaryEl.className = 'summary-bar has-failed';
+    }
+  </script>
+</body>
+</html>
