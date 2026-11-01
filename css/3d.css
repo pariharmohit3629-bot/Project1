@@ -1,0 +1,316 @@
+/* ==========================================================================
+   TruthLens AI – Optional 3D Physical Styling Layer
+   
+   NOTE: Deleting the <link rel="stylesheet" href="css/3d.css"> line in
+   index.html completely removes all 3D effects and restores the flat design.
+   
+   Tactile paper, ink stamps, physical key buttons, and depth layers.
+   No neon glow, no gradient text, no glassmorphism, no continuous loops.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. Depth Tokens & Configuration
+   -------------------------------------------------------------------------- */
+:root {
+  --depth-perspective: 1200px;
+  --tilt-max: 4deg;
+  --lift: 6px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --3d-duration: 220ms;
+
+  /* Tactile paper & ink shadows (Light Theme) */
+  --3d-paper-edge: rgba(21, 32, 43, 0.08);
+  --3d-paper-edge-2: rgba(21, 32, 43, 0.05);
+  --3d-shadow-ambient: rgba(21, 32, 43, 0.07);
+  --3d-shadow-lift: rgba(21, 32, 43, 0.13);
+  --3d-shadow-inset: rgba(21, 32, 43, 0.09);
+  --3d-btn-edge: #133350;
+  --3d-marker-edge: rgba(21, 32, 43, 0.25);
+  --3d-marker-edge-accent: #133350;
+  --3d-bg-radial: rgba(200, 208, 216, 0.40);
+}
+
+[data-theme="dark"] {
+  /* Tactile shadows & edge contrast (Dark Theme) */
+  --3d-paper-edge: rgba(0, 0, 0, 0.50);
+  --3d-paper-edge-2: rgba(0, 0, 0, 0.35);
+  --3d-shadow-ambient: rgba(0, 0, 0, 0.45);
+  --3d-shadow-lift: rgba(0, 0, 0, 0.65);
+  --3d-shadow-inset: rgba(0, 0, 0, 0.55);
+  --3d-btn-edge: #234c6e;
+  --3d-marker-edge: rgba(0, 0, 0, 0.60);
+  --3d-marker-edge-accent: #1a3852;
+  --3d-bg-radial: rgba(44, 57, 70, 0.45);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --3d-paper-edge: rgba(0, 0, 0, 0.50);
+    --3d-paper-edge-2: rgba(0, 0, 0, 0.35);
+    --3d-shadow-ambient: rgba(0, 0, 0, 0.45);
+    --3d-shadow-lift: rgba(0, 0, 0, 0.65);
+    --3d-shadow-inset: rgba(0, 0, 0, 0.55);
+    --3d-btn-edge: #234c6e;
+    --3d-marker-edge: rgba(0, 0, 0, 0.60);
+    --3d-marker-edge-accent: #1a3852;
+    --3d-bg-radial: rgba(44, 57, 70, 0.45);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Effect 8: Page background depth
+   Faint paper depth via subtle corner radial shading.
+   -------------------------------------------------------------------------- */
+body {
+  background-image: radial-gradient(circle at 100% 0%, var(--3d-bg-radial) 0%, transparent 60%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* --------------------------------------------------------------------------
+   Effect 1: Article sheet
+   Layered paper edge on pasted text and results area, with gentle tilt on hover.
+   -------------------------------------------------------------------------- */
+.article-column {
+  background-color: var(--color-surface);
+  padding: 24px 28px;
+  border: 1px solid var(--color-rule);
+  box-shadow: 
+    0 1px 0 var(--3d-paper-edge),
+    1px 2px 0 var(--3d-paper-edge-2),
+    0 6px 18px var(--3d-shadow-ambient);
+  transition: transform var(--3d-duration) var(--ease), box-shadow var(--3d-duration) var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  @supports (transform-style: preserve-3d) {
+    .article-column {
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      transform: perspective(var(--depth-perspective)) rotateX(0deg) rotateY(0deg);
+    }
+    .article-column:hover {
+      transform: perspective(var(--depth-perspective)) rotateX(0.75deg) rotateY(-1.25deg);
+      box-shadow: 
+        0 1px 0 var(--3d-paper-edge),
+        1px 2px 0 var(--3d-paper-edge-2),
+        2px 10px 24px var(--3d-shadow-lift);
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Effect 2: Verdict stamp
+   One-time 3D stamp landing animation when the result appears.
+   -------------------------------------------------------------------------- */
+.verdict-header {
+  perspective: var(--depth-perspective);
+}
+
+@keyframes verdictStamp3D {
+  0% {
+    opacity: 0;
+    transform: rotateX(55deg) scale(1.15);
+  }
+  75% {
+    opacity: 1;
+    transform: rotateX(-4deg) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (transform-style: preserve-3d) {
+    .results-container.is-active .verdict-title {
+      transform-origin: center top;
+      animation: verdictStamp3D 280ms var(--ease) forwards;
+      backface-visibility: hidden;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Effect 3: Score ruler depth
+   Inset ruler track with extruded marker pointers.
+   -------------------------------------------------------------------------- */
+.score-ruler {
+  box-shadow: 
+    inset 0 2px 4px var(--3d-shadow-inset),
+    inset 0 1px 1px var(--3d-shadow-ambient);
+}
+
+.ruler-pointer {
+  box-shadow: 
+    1px 0 0 var(--3d-marker-edge),
+    2px 0 3px var(--3d-shadow-ambient);
+}
+
+.ruler-pointer.pointer-final {
+  box-shadow: 
+    1px 0 0 var(--3d-marker-edge-accent),
+    2px 1px 4px var(--3d-shadow-ambient);
+}
+
+@supports (transform-style: preserve-3d) {
+  .ruler-pointer {
+    transform: translateX(-50%) translateZ(2px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Effect 4: Tactile key button
+   Physical key feel with bottom edge shadow, lift on hover, press on active.
+   -------------------------------------------------------------------------- */
+.btn-primary {
+  box-shadow: 
+    0 3px 0 var(--3d-btn-edge),
+    0 4px 8px var(--3d-shadow-ambient);
+  transition: transform var(--3d-duration) var(--ease), box-shadow var(--3d-duration) var(--ease), background-color 0.15s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 
+      0 4px 0 var(--3d-btn-edge),
+      0 6px 12px var(--3d-shadow-ambient);
+  }
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 var(--3d-btn-edge),
+    0 2px 4px var(--3d-shadow-ambient);
+}
+
+/* --------------------------------------------------------------------------
+   Effect 5: Claim highlights & margin notes
+   Raised notes with soft shadow; lift on hover/focus; enhanced marker on active.
+   -------------------------------------------------------------------------- */
+.margin-note {
+  background-color: var(--color-surface);
+  box-shadow: 0 1px 3px var(--3d-shadow-ambient);
+  transition: transform var(--3d-duration) var(--ease), box-shadow var(--3d-duration) var(--ease), border-color 0.15s;
+  backface-visibility: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  @supports (transform-style: preserve-3d) {
+    .margin-note {
+      transform-style: preserve-3d;
+    }
+    .margin-note:hover,
+    .margin-note:focus-visible {
+      transform: translateY(calc(-1 * var(--lift))) translateZ(4px);
+      box-shadow: 
+        0 6px 16px var(--3d-shadow-lift),
+        0 2px 4px var(--3d-shadow-ambient);
+    }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .claim-highlight:hover {
+    filter: brightness(0.96);
+  }
+  [data-theme="dark"] .claim-highlight:hover {
+    filter: brightness(1.10);
+  }
+}
+
+.claim-highlight.is-active {
+  box-shadow: 0 1px 2px var(--3d-shadow-ambient);
+}
+
+/* --------------------------------------------------------------------------
+   Effect 6: History rows
+   Row tilts forward slightly on hover like pulling a card from a file drawer.
+   -------------------------------------------------------------------------- */
+.ledger-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  perspective: var(--depth-perspective);
+}
+
+.ledger-row {
+  transform-origin: center top;
+  transition: transform var(--3d-duration) var(--ease), box-shadow var(--3d-duration) var(--ease);
+  backface-visibility: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  @supports (transform-style: preserve-3d) {
+    .ledger-row {
+      transform-style: preserve-3d;
+    }
+    .ledger-row:hover {
+      transform: translateY(-2px) rotateX(1.2deg);
+    }
+    .ledger-row:hover td {
+      box-shadow: 0 4px 10px var(--3d-shadow-lift);
+      background-color: var(--color-surface);
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Effect 7: Navigation folder tabs & perspective page turn
+   Active tab raised like a folder tab; gentle perspective turn on view switch.
+   -------------------------------------------------------------------------- */
+.nav-link.is-active {
+  position: relative;
+  background-color: var(--color-surface);
+  padding: 4px 10px;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
+  border: 1px solid var(--color-rule);
+  border-bottom-color: transparent;
+  box-shadow: 
+    0 -1px 3px var(--3d-shadow-ambient),
+    0 2px 0 var(--color-paper);
+  margin-bottom: -1px;
+}
+
+/* Page turn animation on view container */
+@keyframes pageTurn3D {
+  0% {
+    opacity: 0;
+    transform: perspective(var(--depth-perspective)) rotateY(7deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (transform-style: preserve-3d) {
+    /* Exclude dashboard to ensure Chart.js canvas sizing is completely unaffected */
+    .tab-pane.is-active:not(#pane-dashboard) {
+      transform-origin: left center;
+      animation: pageTurn3D 240ms var(--ease) forwards;
+      backface-visibility: hidden;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced Motion Override
+   Preserves static shadows while stripping transforms and keyframe motions.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .article-column,
+  .verdict-title,
+  .ruler-pointer,
+  .btn-primary,
+  .margin-note,
+  .ledger-row,
+  .tab-pane {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
